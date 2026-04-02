@@ -11,6 +11,7 @@ env/
 
 # Env files
 .env
+.env.example
 
 # Alembic
 migrations/versions/*.pyc
