@@ -17,6 +17,7 @@ class Source(Base):
     site_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     language: Mapped[str] = mapped_column(String(10), nullable=False, default="he")
     country: Mapped[str] = mapped_column(String(10), nullable=False, default="IL")
+    category: Mapped[str] = mapped_column(String(50), nullable=False, default="tech")
     priority_weight: Mapped[float] = mapped_column(Numeric(3,2), nullable=False, default=1.00)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     poll_interval_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
