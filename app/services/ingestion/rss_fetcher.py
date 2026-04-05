@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 class RSSFetcher:
-    def __init__(self, timeout_seconds: float = 15.0) -> None:
+    def __init__(self, timeout_seconds: float = 500.0) -> None:
         self.timeout_seconds = timeout_seconds
 
     def fetch(self, feed_url: str) -> str:
