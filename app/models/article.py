@@ -9,6 +9,9 @@ class Article(Base):
     __tablename__ = "articles"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    external_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    title: Mapped[str] = mapped_column(String(1000), nullable=False)
+    url: Mapped[str] = mapped_column(String(2000), nullable=False)
     source_id: Mapped[int] = mapped_column(ForeignKey("sources.id"), nullable=False, index=True)
     canonical_url: Mapped[str] = mapped_column(String(2000), nullable=False, unique=True)
     author: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -22,6 +25,6 @@ class Article(Base):
     content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="ingested", index=True)
     is_duplicated: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    duplicated_of_article_id: Mapped[Optional[int]] = mapped_column(ForeignKey("articles.id"), nullable=False)
+    duplicated_of_article_id: Mapped[Optional[int]] = mapped_column(ForeignKey("articles.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

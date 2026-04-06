@@ -40,8 +40,8 @@ class RSSNormalizer:
             "title_hash": title_hash,
             "content_hash": content_hash,
             "status": "ingested",
-            "is_duplicate": False,
-            "duplicate_of_article_id": None,
+            "is_duplicated": False,
+            "duplicated_of_article_id": None,
         }
 
     def _clean_text(self, value: Any) -> Optional[str]:
