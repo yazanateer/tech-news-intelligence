@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     redis_db: int = 0
 
     openai_api_key: str = ""
+    openai_model: str = "gpt-4.1-mini"
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_whatsapp_from: str = ""

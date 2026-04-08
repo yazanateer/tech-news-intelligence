@@ -9,7 +9,7 @@ from app.services.ai.prompts import SYSTEM_PROMPT, build_article_enrichment_prom
 class OpenAIClient:
     def __init__(self) -> None:
         self.client = OpenAI(api_key=settings.openai_api_key)
-        self.model = settings.OPENAI_MODEL
+        self.model = settings.openai_model
 
     def enrich_article(self, article_payload: Dict[str, Any]) -> Dict[str, Any]:
         user_prompt = build_article_enrichment_prompt(article_payload)
