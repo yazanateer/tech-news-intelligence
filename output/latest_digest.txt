@@ -1,0 +1,9 @@
+Israeli Tech News Digest
+Generated at: 2026-04-23 18:51:42 UTC
+
+1. סטארטאפ קוונטי ישראלי שנחשף עכשיו מבטיח להצליח איפה שהגדולות מתקשות
+Summary: The Israeli startup Q-Factor has revealed a new approach to quantum computer architecture, aiming to overcome current scalability challenges that have hindered major advancements in the field. The founders believe their innovation could significantly advance quantum computing technology.
+Why it matters: If successful, Q-Factor's breakthrough could accelerate the practical deployment of quantum computers, impacting industries reliant on advanced computation. This development also highlights Israel's growing role in cutting-edge quantum technology innovation.
+Tags: quantum computing, startup, Israel, technology innovation, scalability
+Importance: 8.0
+URL: https://www.geektime.co.il/q-factor-comes-out-of-stealth-with-24m-seed/
