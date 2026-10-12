@@ -22,6 +22,8 @@ RSS Feed
 → Generate Digest
 → Send WhatsApp (Twilio)
 
+Orchestrated by `PipelineService` (app/services/pipeline_service.py).
+
 ---
 
 # Tech Stack
@@ -68,6 +70,10 @@ Examples:
 - EnrichmentService
 - DigestBuilder
 - WhatsAppSender
+- PipelineService
+
+Services accept external clients (OpenAI, Twilio, RSS fetcher) as optional
+constructor arguments so tests can inject fakes.
 
 Keep services focused and modular.
 
@@ -152,41 +158,35 @@ The OpenAI client should remain generic.
 
 # Current Project Status
 
-Completed:
+Completed (MVP):
 
-✅ RSS fetching
+✅ RSS fetching, parsing, normalization
 
-✅ RSS parsing
+✅ URL canonicalization + SHA-256 hashing
 
-✅ Normalization
+✅ PostgreSQL persistence (deduplicated, unique enrichment per article)
 
-✅ URL canonicalization
+✅ Batch OpenAI enrichment with strict JSON schema + Pydantic validation
 
-✅ SHA-256 hashing
+✅ Time-windowed digest generation
 
-✅ PostgreSQL persistence
+✅ WhatsApp delivery (one message per article)
 
-✅ OpenAI enrichment
+✅ One-command pipeline: `python -m scripts.run_pipeline [--no-send]`
 
-✅ Digest generation
-
-✅ WhatsApp delivery
+✅ Test suite: `pytest` (unit + integration on in-memory SQLite)
 
 ---
 
-# Current MVP Goal
+# Current Goal
 
-Finish the Minimum Viable Product.
+The MVP is complete. Keep it interview-ready:
 
-Current priorities:
+1. Keep `pytest` green; add tests with every change
+2. Keep RSS sources healthy (Calcalist/CTech feed URLs returned 404 on 2026-10-12)
+3. Keep README in sync with behavior
 
-1. Build one-command pipeline
-2. Batch enrich pending articles
-3. Improve WhatsApp formatting
-4. Improve logging
-5. Polish README
-
-Do NOT introduce major new features before finishing the MVP.
+Do NOT introduce major new features unless explicitly requested.
 
 ---
 

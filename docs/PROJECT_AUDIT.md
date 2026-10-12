@@ -147,3 +147,28 @@ scripts/seed_sources.py ─► scripts/run_ingestion_once.py ─► scripts/test
 13. Optional: a `Dockerfile` plus an `app` service in compose; add a unique constraint on `article_enrichments.article_id` (new migration); upgrade to Python 3.11.
 
 **Talking points to prepare:** why dedup uses the canonical URL; why the repository/service split; how you'd prevent LLM hallucination or malformed output (schema + validation); idempotency (re-running the pipeline doesn't double-send); what you'd add with Redis/Celery and why you deliberately didn't.
+
+---
+
+## 7. Resolution (2026-10-12, branch `mvp-completion`)
+
+The P0–P2 roadmap above was carried out. Status of each finding:
+
+| Finding | Status |
+|---|---|
+| Committed parser / health check bugs | ✅ Fixed and committed |
+| Batch enrichment, one-command pipeline | ✅ `EnrichmentService.enrich_pending`, `PipelineService`, `scripts/run_pipeline.py` |
+| Unvalidated LLM output | ✅ Strict JSON schema (Responses API) + Pydantic `EnrichmentResult` |
+| Digest repeats old news / NULL ordering | ✅ Time window, Israel-relevance filter, `NULLS LAST` |
+| Missing error handling (OpenAI, Twilio, bad entries) | ✅ `AIClientError`, `DeliveryError`, per-entry savepoints, per-article failure status |
+| 500 s RSS timeout | ✅ `RSS_TIMEOUT_SECONDS` setting (default 15) |
+| Duplicate enrichments possible | ✅ Migration `b6bb61937acc` adds a unique index |
+| Dependency / `.env.example` / README drift | ✅ Direct-only pinned requirements, committed `.env.example`, README rewritten |
+| Redis unused and port clash | ✅ Removed |
+| No tests | ✅ 44 tests (`pytest`), no DB/network required |
+
+**Verified live:** Postgres migrated (after a `pg_dump` backup), the pipeline ran with `--no-send` (30 articles ingested, 5/5 enrichments accepted by the strict schema), re-running is idempotent (no duplicate articles or enrichments), and `/api/v1/health` returns `ok`. WhatsApp sending was not exercised.
+
+**Still open:**
+- The Calcalist (`calcalist-tech`) and CTech (`ctech`) feed URLs return **HTTP 404**, so only Geektime currently ingests. The sources need new URLs or deactivating.
+- Not done by choice: Python 3.11 upgrade, Dockerfile, CI.
