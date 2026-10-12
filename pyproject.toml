@@ -1,0 +1,9 @@
+[project]
+name = "israeli-tech-news-intelligence"
+version = "0.1.0"
+description = "AI-powered pipeline that ingests Israeli tech news, enriches it with OpenAI and delivers a WhatsApp digest."
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
