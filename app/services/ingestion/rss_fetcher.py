@@ -1,13 +1,16 @@
 import logging
+from typing import Optional
 
 import httpx
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 class RSSFetcher:
-    def __init__(self, timeout_seconds: float = 500.0) -> None:
-        self.timeout_seconds = timeout_seconds
+    def __init__(self, timeout_seconds: Optional[float] = None) -> None:
+        self.timeout_seconds = timeout_seconds or settings.rss_timeout_seconds
 
     def fetch(self, feed_url: str) -> str:
         try:
@@ -19,9 +22,9 @@ class RSSFetcher:
             return response.text
         except httpx.HTTPStatusError as exc:
             logger.error(
-            "RSS fetch failed with status error for %s: %s",
-            feed_url,
-            exc
+                "RSS fetch failed with status error for %s: %s",
+                feed_url,
+                exc
             )
             raise
 

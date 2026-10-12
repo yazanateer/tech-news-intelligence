@@ -16,6 +16,7 @@ class RSSParser:
                     "link": getattr(entry, "link", None),
                     "description": getattr(entry, "summary", None),
                     "published": getattr(entry, "published", None),
+                    "published_parsed": getattr(entry, "published_parsed", None),
                     "external_id": getattr(entry, "id", None),
                 }
             )
