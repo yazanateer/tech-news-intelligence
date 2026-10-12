@@ -25,3 +25,5 @@ migrations/versions/*.pyc
 
 # Logs
 *.log
+# Generated output
+output/
