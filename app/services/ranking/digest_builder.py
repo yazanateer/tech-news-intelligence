@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Tuple
 
 from app.models.article import Article
@@ -7,7 +7,7 @@ from app.models.article_enrichment import ArticleEnrichment
 
 class DigestBuilder:
     def build(self, items: List[Tuple[Article, ArticleEnrichment]]) -> str:
-        now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
         lines = [
             "עדכון חדשות טכנולוגיה",
