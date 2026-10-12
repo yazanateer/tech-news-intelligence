@@ -80,6 +80,7 @@ All configuration is read from environment variables / `.env` by `app/core/confi
 |---|---|---|
 | `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database connection | matches `docker-compose.yml` |
 | `OPENAI_API_KEY`, `OPENAI_MODEL` | OpenAI credentials and model | model: `gpt-4.1-mini` |
+| `OPENAI_TIMEOUT_SECONDS` | Timeout per OpenAI request | `30` |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | Twilio credentials | — |
 | `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO` | Sender / recipient (`whatsapp:+...`) | — |
 | `RSS_TIMEOUT_SECONDS` | HTTP timeout per feed | `15` |

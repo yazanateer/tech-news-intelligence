@@ -10,7 +10,7 @@ import logging
 from app.core.database import SessionLocal
 from app.core.logging import setup_logging
 from app.services.pipeline_service import PipelineService
-from scripts.common import save_digest
+from scripts.common import run_cli, save_digest
 
 logger = logging.getLogger(__name__)
 
@@ -45,4 +45,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_cli(main)

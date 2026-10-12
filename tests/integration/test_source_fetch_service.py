@@ -1,6 +1,5 @@
-import httpx
-
 from app.models import Article, Source
+from app.services.ingestion.rss_fetcher import FeedFetchError
 from app.services.ingestion.source_fetch_service import SourceFetchService
 from tests.factories import FakeFetcher
 
@@ -26,7 +25,7 @@ def test_ingest_twice_does_not_duplicate_articles(db, source, sample_feed) -> No
 
 
 def test_failed_source_is_reported_and_does_not_raise(db, source) -> None:
-    fetcher = FakeFetcher(error=httpx.ConnectError("unreachable"))
+    fetcher = FakeFetcher(error=FeedFetchError("HTTP 404 from https://example.com/feed.xml"))
 
     result = SourceFetchService(db, rss_fetcher=fetcher).ingest_active_sources()
 

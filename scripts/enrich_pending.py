@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.core.database import SessionLocal
 from app.core.logging import setup_logging
 from app.services.ai.enrichment_service import EnrichmentService
+from scripts.common import run_cli
 
 
 def main() -> None:
@@ -21,4 +22,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    run_cli(main)

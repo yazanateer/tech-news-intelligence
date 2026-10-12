@@ -75,3 +75,12 @@ def test_send_message_wraps_twilio_errors() -> None:
 
     with pytest.raises(DeliveryError):
         sender.send_message("hello")
+
+
+def test_openai_client_uses_configured_timeout(monkeypatch) -> None:
+    monkeypatch.setattr("app.core.config.settings.openai_timeout_seconds", 12.5)
+    monkeypatch.setattr("app.core.config.settings.openai_api_key", "test-key")
+
+    client = OpenAIClient()
+
+    assert client.client.timeout == 12.5

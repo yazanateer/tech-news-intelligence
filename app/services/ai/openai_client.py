@@ -15,7 +15,10 @@ class AIClientError(Exception):
 
 class OpenAIClient:
     def __init__(self, client: Optional[OpenAI] = None, model: Optional[str] = None) -> None:
-        self.client = client or OpenAI(api_key=settings.openai_api_key)
+        self.client = client or OpenAI(
+            api_key=settings.openai_api_key,
+            timeout=settings.openai_timeout_seconds,
+        )
         self.model = model or settings.openai_model
 
     def generate_json(

@@ -47,8 +47,16 @@ class EnrichmentService:
         logger.info("Found %s articles pending enrichment", len(articles))
 
         result = EnrichmentBatchResult()
+        total = len(articles)
 
-        for article in articles:
+        for position, article in enumerate(articles, start=1):
+            logger.info(
+                "Enriching article %s/%s (id=%s): %s",
+                position,
+                total,
+                article.id,
+                article.title,
+            )
             try:
                 self.enrich_article(article)
                 result.enriched += 1
@@ -68,8 +76,6 @@ class EnrichmentService:
     def enrich_article(self, article: Article) -> ArticleEnrichment:
         if self.enrichment_repository.get_by_article_id(article.id):
             raise ArticleAlreadyEnrichedError(f"Article {article.id} is already enriched")
-
-        logger.info("Enriching article %s: %s", article.id, article.title)
 
         raw_result = self.openai_client.generate_json(
             system_prompt=SYSTEM_PROMPT,
