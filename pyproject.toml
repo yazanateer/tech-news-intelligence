@@ -7,3 +7,7 @@ requires-python = ">=3.9"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = [
+    # macOS system Python 3.9 ships LibreSSL; harmless for this project.
+    "ignore:urllib3 v2 only supports OpenSSL",
+]
