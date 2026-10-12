@@ -1,10 +1,10 @@
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import logging
 
 from app.core.database import SessionLocal
-from app.models.source import Source
+from app.core.logging import setup_logging
+from app.repositories.source_repository import SourceRepository
+
+logger = logging.getLogger(__name__)
 
 
 SOURCES = [
@@ -51,32 +51,26 @@ SOURCES = [
 
 
 def seed_sources() -> None:
+    setup_logging()
+
     db = SessionLocal()
-
     try:
-        for source_data in SOURCES:
-            existing_source = (
-                db.query(Source)
-                .filter(Source.slug == source_data["slug"])
-                .first()
-            )
+        repository = SourceRepository(db)
 
-            if existing_source:
-                print(f"Skipping existing source: {source_data['slug']}")
+        for source_data in SOURCES:
+            if repository.get_by_slug(source_data["slug"]):
+                logger.info("Skipping existing source: %s", source_data["slug"])
                 continue
 
-            source = Source(**source_data)
-            db.add(source)
-            print(f"Added source: {source_data['slug']}")
+            repository.create(source_data)
+            logger.info("Added source: %s", source_data["slug"])
 
         db.commit()
-        print("Source seeding completed successfully.")
-
-    except Exception as e:
+        logger.info("Source seeding completed successfully.")
+    except Exception:
         db.rollback()
-        print(f"Seeding failed: {e}")
+        logger.exception("Source seeding failed")
         raise
-
     finally:
         db.close()
 
