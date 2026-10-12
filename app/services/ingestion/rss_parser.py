@@ -20,4 +20,4 @@ class RSSParser:
                 }
             )
 
-            return entries
+        return entries

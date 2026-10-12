@@ -13,7 +13,7 @@ async def health_check():
 
     try:
         db = SessionLocal()
-        db.execute(text["Select 1"])
+        db.execute(text("SELECT 1"))
         db_ok = True
     except Exception:
         db_ok = False
