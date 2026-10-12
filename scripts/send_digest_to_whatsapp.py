@@ -18,12 +18,13 @@ def main() -> None:
         whatsapp_sender = WhatsAppSender()
 
         items = digest_repository.get_top_enriched_articles(limit=5)
-        digest = digest_builder.build(items)
+        messages = digest_builder.build_messages(items)
 
-        message_sid = whatsapp_sender.send_message(digest)
+        for message in messages:
+            message_sid = whatsapp_sender.send_message(message)
+            print(f"Sent WhatsApp message. Twilio message SID: {message_sid}")
 
-        print("Digest sent to WhatsApp successfully.")
-        print(f"Twilio message SID: {message_sid}")
+        print(f"Digest sent to WhatsApp successfully ({len(messages)} message(s)).")
 
     finally:
         db.close()
