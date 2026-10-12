@@ -14,6 +14,7 @@ class ArticleEnrichment(Base):
         ForeignKey("articles.id"),
         nullable=False,
         index=True,
+        unique=True,
     )
 
     model_name: Mapped[str] = mapped_column(String(100), nullable=False)

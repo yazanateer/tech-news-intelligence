@@ -1,310 +1,192 @@
 # Israeli Tech News Intelligence System
 
-An AI-powered backend system that ingests real-time technology news, enriches articles using Large Language Models (LLMs), ranks important stories, and automatically delivers curated news updates through WhatsApp.
+An AI-powered backend pipeline that ingests Israeli technology news from RSS feeds, enriches every article with an LLM (summary, category, tags, importance score, Israel relevance), ranks the most important stories and delivers a Hebrew digest to WhatsApp — with one command.
 
 ---
 
-## Overview
-
-This project was built to simulate a real-world AI-powered data pipeline used in modern backend and information intelligence systems.
-
-The system continuously:
-
-1. Fetches technology news from RSS sources
-2. Parses and normalizes article data
-3. Stores articles in PostgreSQL
-4. Enriches articles using OpenAI
-5. Generates ranked news digests
-6. Sends updates automatically to WhatsApp
-
-The project focuses on:
-
-* Backend architecture
-* AI integration
-* Data pipelines
-* External API integrations
-* Modular software design
-* Real-world engineering practices
-
----
-
-## Features
-
-### News Ingestion Pipeline
-
-* RSS feed ingestion using `httpx`
-* Feed parsing and normalization
-* URL canonicalization
-* SHA-256 content hashing
-* Duplicate prevention
-* PostgreSQL persistence
-
-### AI Enrichment Layer
-
-* OpenAI integration
-* Structured JSON outputs
-* AI-generated summaries
-* Importance scoring
-* Technology categorization
-* Israeli relevance detection
-* Tag generation
-
-### Delivery Layer
-
-* Digest generation
-* Ranking based on article importance
-* WhatsApp delivery using Twilio
-
----
-
-## End-to-End Flow
+## How it works
 
 ```text
-RSS Feed
-   ↓
-Fetch + Parse
-   ↓
-Normalize
-   ↓
-Save Articles
-   ↓
-AI Enrichment
-   ↓
-Generate Digest
-   ↓
-WhatsApp Delivery
+RSS feeds ──► Fetch (httpx) ──► Parse (feedparser) ──► Normalize + canonicalize URL + SHA-256
+                                                                │
+                                                     PostgreSQL: articles (deduplicated)
+                                                                │
+                                OpenAI Responses API (strict JSON schema) ──► Pydantic validation
+                                                                │
+                                                 PostgreSQL: article_enrichments
+                                                                │
+                       Rank by importance (last 24h, Israel-relevant) ──► Digest ──► WhatsApp (Twilio)
 ```
-
----
-
-## Architecture
 
 ![Architecture Diagram](docs/architecture.png)
 
-The system follows a modular service-oriented backend architecture.
-
-### Main Components
-
-#### Ingestion Layer
-
-Responsible for:
-
-* Fetching RSS feeds
-* Parsing XML feeds
-* Normalizing article data
-* Deduplication
-
-#### AI Layer
-
-Responsible for:
-
-* OpenAI communication
-* Prompt engineering
-* Structured enrichment generation
-* Article intelligence extraction
-
-#### Persistence Layer
-
-Responsible for:
-
-* PostgreSQL storage
-* Repository abstraction
-* Data access logic
-* Entity relationships
-
-#### Delivery Layer
-
-Responsible for:
-
-* Digest creation
-* WhatsApp notifications
-* Message formatting
+`scripts/run_pipeline.py` runs every step through `PipelineService`. Each step is also available as its own script.
 
 ---
 
-## Tech Stack
+## Tech stack
 
-### Backend
-
-* Python 3.9+
-* SQLAlchemy
-* Alembic
-* PostgreSQL
-
-### AI
-
-* OpenAI API
-* Structured prompting
-* JSON response parsing
-
-### Messaging
-
-* Twilio WhatsApp API
-
-### Infrastructure
-
-* Docker
-* Docker Compose
+| Area | Tools |
+|---|---|
+| Language | Python 3.9+ |
+| Database | PostgreSQL 16, SQLAlchemy 2.0, Alembic |
+| AI | OpenAI Responses API with structured outputs, Pydantic validation |
+| Ingestion | httpx, feedparser |
+| Delivery | Twilio WhatsApp API |
+| API | FastAPI (health check) |
+| Infra / tests | Docker Compose, pytest |
 
 ---
 
-## Project Structure
+## Quickstart
+
+```bash
+# 1. Install
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Configure (fill in OpenAI + Twilio keys)
+cp .env.example .env
+
+# 3. Start PostgreSQL and create the schema
+docker compose up -d
+alembic upgrade head
+
+# 4. Add the RSS sources
+python -m scripts.seed_sources
+
+# 5. Run the whole pipeline
+python -m scripts.run_pipeline --no-send   # build the digest only (saved to output/latest_digest.txt)
+python -m scripts.run_pipeline             # ... and send it to WhatsApp
+```
+
+### Individual steps
+
+| Command | What it does |
+|---|---|
+| `python -m scripts.run_ingestion_once` | Fetch all active RSS sources and store new articles |
+| `python -m scripts.enrich_pending --limit 20` | Enrich articles that have no enrichment yet |
+| `python -m scripts.generate_digest` | Build the digest and save it to `output/latest_digest.txt` |
+| `python -m scripts.send_digest_to_whatsapp` | Build the digest and send it to WhatsApp |
+| `uvicorn app.main:app` | Start the API (`GET /api/v1/health`) |
+
+---
+
+## Configuration
+
+All configuration is read from environment variables / `.env` by `app/core/config.py`. See `.env.example`.
+
+| Variable | Description | Default |
+|---|---|---|
+| `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database connection | matches `docker-compose.yml` |
+| `OPENAI_API_KEY`, `OPENAI_MODEL` | OpenAI credentials and model | model: `gpt-4.1-mini` |
+| `OPENAI_TIMEOUT_SECONDS` | Timeout per OpenAI request | `30` |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | Twilio credentials | — |
+| `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO` | Sender / recipient (`whatsapp:+...`) | — |
+| `RSS_TIMEOUT_SECONDS` | HTTP timeout per feed | `15` |
+| `RSS_USER_AGENT` | User-Agent sent to feeds (some block generic clients) | `IsraeliTechNewsIntelligence/0.1 (RSS reader)` |
+| `ENRICHMENT_BATCH_SIZE` | Max articles enriched per run | `20` |
+| `DIGEST_SIZE` | Articles per digest | `5` |
+| `DIGEST_WINDOW_HOURS` | Only include articles from this window | `24` |
+| `DIGEST_ISRAELI_ONLY` | Only include Israel-relevant articles | `true` |
+
+---
+
+## Project structure
 
 ```text
 app/
- ├── core/
- ├── models/
- ├── repositories/
+ ├── core/            # settings, database session, logging
+ ├── models/          # SQLAlchemy models: Source, Article, ArticleEnrichment
+ ├── repositories/    # database access only (no business logic)
+ ├── schemas/         # Pydantic model that validates LLM output
  ├── services/
- │    ├── ai/
- │    ├── delivery/
- │    ├── ingestion/
- │    ├── processing/
- │    └── ranking/
- └── scripts/
+ │    ├── ingestion/  # RSS fetch, parse, normalize, SourceFetchService
+ │    ├── processing/ # URL canonicalizer, SHA-256 hasher
+ │    ├── ai/         # generic OpenAI client, prompts + JSON schema, EnrichmentService
+ │    ├── ranking/    # DigestBuilder (WhatsApp formatting)
+ │    ├── delivery/   # WhatsAppSender (Twilio)
+ │    └── pipeline_service.py   # orchestrates the full flow
+ └── api/             # FastAPI health endpoint
+scripts/              # CLI entry points (python -m scripts.<name>)
+migrations/           # Alembic migrations
+tests/
+ ├── unit/            # pure logic and external-client wrappers (fakes)
+ └── integration/     # repositories and services against in-memory SQLite
 ```
 
 ---
 
-## Database Design
+## Database design
 
-### Sources
-
-Stores RSS source configuration.
-
-### Articles
-
-Stores normalized article data.
-
-### Article Enrichments
-
-Stores AI-generated intelligence:
-
-* summaries
-* importance score
-* tags
-* categories
-* Israeli relevance
+| Table | Purpose |
+|---|---|
+| `sources` | RSS source configuration (feed URL, language, priority, active flag, last fetch time) |
+| `articles` | Normalized articles; `canonical_url` is unique, so it's the deduplication key. `status`: `ingested` → `enriched` / `enrichment_failed` |
+| `article_enrichments` | AI output: category, summary, why it matters, tags, importance score, Israel relevance and the raw LLM response. One per article (unique `article_id`) |
 
 ---
 
-## Example AI Enrichment Output
+## Example output
+
+AI enrichment, validated against a strict JSON schema:
 
 ```json
 {
-  "category": "Quantum Computing",
-  "short_summary": "An Israeli startup introduced a new scalable quantum computing architecture.",
-  "why_it_matters": "The innovation could accelerate practical quantum computing adoption.",
-  "tags": ["quantum", "startup", "Israel"],
-  "importance_score": 8,
+  "category": "סטארטאפים וטכנולוגיה",
+  "short_summary": "אמזון מנהלת מגעים לרכישת דקארט הישראלית ב-7 מיליארד דולר.",
+  "why_it_matters": "הרכישה תשפיע על שוק ה-AI ותדגיש את חשיבות הסטארטאפים הישראליים בתחום.",
+  "tags": ["אמזון", "דקארט", "AI"],
+  "importance_score": 9,
   "is_israeli_relevant": true
 }
 ```
 
----
-
-## Example WhatsApp Digest
+A WhatsApp message (one message per article):
 
 ```text
-Israeli Tech News Digest
+עדכון חדשות טכנולוגיה (1/4)
 
-1. Israeli startup reveals breakthrough quantum architecture
-Summary: ...
-Why it matters: ...
-Importance: 8
+1. עכשיו זו אמזון שרוצה לרכוש את דקארט ב-7 מיליארד דולר
+אמזון מנהלת מגעים לרכישת דקארט הישראלית ב-7 מיליארד דולר.
+למה זה חשוב: הרכישה תשפיע על שוק ה-AI ותדגיש את חשיבות הסטארטאפים הישראליים בתחום.
+תגיות: אמזון, דקארט, AI
+דירוג חשיבות: 9.0/10
+https://www.geektime.co.il/amazon-to-acquire-decart-israeli-ai-startup-for-7-billion-report/
 ```
 
 ---
 
-## Running the Project
-
-### Start infrastructure
+## Testing
 
 ```bash
-docker compose up -d
+pytest
 ```
 
-### Run migrations
+The 44 tests run in under a second and need no database or network:
 
-```bash
-alembic upgrade head
-```
+- **Unit:** URL canonicalization, hashing, RSS parsing, normalization (including date formats and missing fields), digest formatting, LLM output validation, and the OpenAI/Twilio wrappers with fake SDK clients.
+- **Integration:** repositories, ingestion (dedup, bad entries, failing feeds), enrichment (success, API failure, invalid LLM output, idempotency) and the full pipeline, all against in-memory SQLite.
 
-### Seed RSS sources
-
-```bash
-python -m scripts.seed_sources
-```
-
-### Run ingestion
-
-```bash
-python -m scripts.run_ingestion_once
-```
-
-### Run AI enrichment
-
-```bash
-python -m scripts.test_single_article_enrichment
-```
-
-### Generate digest
-
-```bash
-python -m scripts.generate_digest
-```
-
-### Send digest to WhatsApp
-
-```bash
-python -m scripts.send_digest_to_whatsapp
-```
+Services receive their external clients through their constructors, so tests swap in fakes without patching.
 
 ---
 
-## Environment Variables
+## Design decisions & trade-offs
 
-Example `.env` configuration:
-
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/israeli_tech_news
-
-OPENAI_API_KEY=your_openai_key
-OPENAI_MODEL=gpt-4.1-mini
-
-TWILIO_ACCOUNT_SID=your_sid
-TWILIO_AUTH_TOKEN=your_token
-TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
-WHATSAPP_TO=whatsapp:+972XXXXXXXXX
-```
+- **Repository / service split.** Repositories only run queries; services hold the business logic; scripts are thin CLI wrappers. Each layer is easy to test and replace.
+- **Deduplication by canonical URL.** Tracking parameters (`utm_*`, `fbclid`, …) and fragments are stripped, so the same story shared with different links is stored once. The unique constraint backs this up at the database level.
+- **Never trust raw LLM output.** The Responses API is called with a strict JSON schema, and the result is validated again with Pydantic (score range, required fields, at most 3 tags). An invalid response marks the article `enrichment_failed` instead of crashing the batch.
+- **Failure isolation.** One broken feed doesn't stop the other sources. One bad entry doesn't roll back its feed (each insert runs in a savepoint). One failed LLM call or WhatsApp message doesn't stop the rest.
+- **Idempotent runs.** Re-running ingestion skips known URLs. Enrichment only picks up articles without an enrichment, and the database enforces one enrichment per article.
+- **Digest freshness via a time window.** Only the last `DIGEST_WINDOW_HOURS` are ranked. This is deliberately simple: running the pipeline twice in the same window sends the same digest again. Recording a `sent_at` per article would fix that if the pipeline were scheduled.
+- **Deliberately out of scope:** a scheduler, queues (Redis/Celery), RAG and a dashboard. The pipeline is a single batch job; cron or a scheduler could run `run_pipeline` as-is.
 
 ---
 
-## Engineering Concepts Demonstrated
+## Future improvements
 
-* Modular backend architecture
-* Repository pattern
-* AI system integration
-* Structured LLM outputs
-* Data normalization
-* Deduplication strategies
-* External API integrations
-* Pipeline orchestration
-* Environment-based configuration
-* Database migrations
-* Dockerized infrastructure
-
----
-
-## Future Improvements
-Planned improvements include:
-
-* Redis-based queue workers
-* Scheduled background jobs
-* Advanced ranking algorithms
-* Better RSS coverage
-* Vector search and RAG
-* Multi-language support
-* Web dashboard
-* Delivery analytics
-* Retry and observability systems
+- Schedule `run_pipeline` (cron, GitHub Actions or a worker) and track sent articles
+- Retry with backoff for OpenAI and Twilio calls
+- More sources and better ranking (source weight, recency decay, cross-source similarity via `title_hash`)
+- Containerize the pipeline itself and add CI

@@ -11,7 +11,6 @@ env/
 
 # Env files
 .env
-.env.example
 
 # Alembic
 migrations/versions/*.pyc
@@ -25,3 +24,5 @@ migrations/versions/*.pyc
 
 # Logs
 *.log
+# Generated output
+output/

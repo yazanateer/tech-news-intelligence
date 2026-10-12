@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Sample Tech Feed</title>
+    <item>
+      <title>Israeli startup raises $24M seed</title>
+      <link>https://example.com/startup-raises?utm_source=rss&amp;id=7#comments</link>
+      <description>&lt;p&gt;An &lt;b&gt;Israeli&lt;/b&gt; startup raised money.&lt;/p&gt;</description>
+      <pubDate>Mon, 06 Apr 2026 10:00:00 +0300</pubDate>
+      <guid>startup-1</guid>
+    </item>
+    <item>
+      <link>https://example.com/no-title</link>
+      <description>Entry without a title</description>
+    </item>
+    <item>
+      <title>Same story, different tracking params</title>
+      <link>https://example.com/startup-raises?id=7&amp;utm_campaign=x</link>
+      <description>Duplicate</description>
+    </item>
+    <item>
+      <title>Cyber company acquired</title>
+      <link>https://example.com/cyber-acquired</link>
+      <description>Acquisition news</description>
+      <pubDate>Tue, 07 Apr 2026 08:30:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
