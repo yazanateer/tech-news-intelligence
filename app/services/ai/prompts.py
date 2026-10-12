@@ -8,6 +8,31 @@ SYSTEM_PROMPT = (
     "Do not add explanations, markdown, or extra text."
 )
 
+ENRICHMENT_SCHEMA_NAME = "article_enrichment"
+
+# Strict JSON schema sent to the OpenAI Responses API (structured outputs).
+ENRICHMENT_JSON_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "category": {"type": "string"},
+        "short_summary": {"type": "string"},
+        "why_it_matters": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "importance_score": {"type": "number"},
+        "is_israeli_relevant": {"type": "boolean"},
+    },
+    "required": [
+        "category",
+        "short_summary",
+        "why_it_matters",
+        "tags",
+        "importance_score",
+        "is_israeli_relevant",
+    ],
+    "additionalProperties": False,
+}
+
+
 def build_article_enrichment_prompt(article_payload: Dict[str, Any]) -> str:
     return f"""
     Analyze this technology news article and return JSON with exactly these fields:

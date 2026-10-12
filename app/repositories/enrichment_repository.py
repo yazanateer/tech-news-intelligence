@@ -6,7 +6,7 @@ from app.models.article_enrichment import ArticleEnrichment
 
 
 class EnrichmentRepository:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session) -> None:
         self.db = db
 
     def get_by_article_id(self, article_id: int) -> Optional[ArticleEnrichment]:
@@ -16,8 +16,8 @@ class EnrichmentRepository:
             .first()
         )
 
-    def create(self, enrichment_date: dict) -> ArticleEnrichment:
-        enrichment = ArticleEnrichment(**enrichment_date)
+    def create(self, enrichment_data: dict) -> ArticleEnrichment:
+        enrichment = ArticleEnrichment(**enrichment_data)
         self.db.add(enrichment)
         self.db.flush()
         return enrichment
