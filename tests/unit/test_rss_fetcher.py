@@ -29,3 +29,15 @@ def test_network_error_raises_feed_fetch_error() -> None:
 
     with pytest.raises(FeedFetchError, match="ConnectError"):
         _fetcher(fail).fetch(FEED_URL)
+
+
+def test_fetch_sends_app_user_agent() -> None:
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["user_agent"] = request.headers["User-Agent"]
+        return httpx.Response(200, text="<rss/>")
+
+    _fetcher(handler).fetch(FEED_URL)
+
+    assert seen["user_agent"].startswith("IsraeliTechNewsIntelligence/")

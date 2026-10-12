@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     whatsapp_to: str = ""
 
     rss_timeout_seconds: float = 15.0
+    # Some feeds block generic library user agents, so identify the app.
+    rss_user_agent: str = "IsraeliTechNewsIntelligence/0.1 (RSS reader)"
     enrichment_batch_size: int = 20
     digest_size: int = 5
     digest_window_hours: int = 24

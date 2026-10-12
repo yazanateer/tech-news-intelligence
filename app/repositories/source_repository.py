@@ -27,6 +27,12 @@ class SourceRepository:
         self.db.flush()
         return source
 
+    def update(self, source: Source, source_data: dict) -> Source:
+        for field, value in source_data.items():
+            setattr(source, field, value)
+        self.db.flush()
+        return source
+
     def mark_fetched(self, source: Source, fetched_at: datetime) -> None:
         source.last_fetched_at = fetched_at
         self.db.flush()

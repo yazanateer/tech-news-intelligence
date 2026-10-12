@@ -27,6 +27,7 @@ class RSSFetcher:
             with httpx.Client(
                 timeout=self.timeout_seconds,
                 follow_redirects=True,
+                headers={"User-Agent": settings.rss_user_agent},
                 transport=self.transport,
             ) as client:
                 response = client.get(feed_url)

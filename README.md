@@ -84,6 +84,7 @@ All configuration is read from environment variables / `.env` by `app/core/confi
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | Twilio credentials | — |
 | `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO` | Sender / recipient (`whatsapp:+...`) | — |
 | `RSS_TIMEOUT_SECONDS` | HTTP timeout per feed | `15` |
+| `RSS_USER_AGENT` | User-Agent sent to feeds (some block generic clients) | `IsraeliTechNewsIntelligence/0.1 (RSS reader)` |
 | `ENRICHMENT_BATCH_SIZE` | Max articles enriched per run | `20` |
 | `DIGEST_SIZE` | Articles per digest | `5` |
 | `DIGEST_WINDOW_HOURS` | Only include articles from this window | `24` |

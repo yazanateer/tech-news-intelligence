@@ -170,5 +170,5 @@ The P0–P2 roadmap above was carried out. Status of each finding:
 **Verified live:** Postgres migrated (after a `pg_dump` backup), the pipeline ran with `--no-send` (30 articles ingested, 5/5 enrichments accepted by the strict schema), re-running is idempotent (no duplicate articles or enrichments), and `/api/v1/health` returns `ok`. WhatsApp sending was not exercised.
 
 **Still open:**
-- The Calcalist (`calcalist-tech`) and CTech (`ctech`) feed URLs return **HTTP 404**, so only Geektime currently ingests. The sources need new URLs or deactivating.
+- ~~Calcalist and CTech feeds return HTTP 404.~~ **Resolved:** neither site publishes a public RSS feed anymore (both domains were probed, and Calcalist blocks non-browser clients). They were retired (kept with `is_active=False` so their old articles stay linked) and replaced with **Globes Technology** (Hebrew) and **Techtime News** (English). `seed_sources.py` now syncs (creates or updates) instead of skipping existing slugs, and the fetcher sends a descriptive User-Agent because Techtime blocks generic clients.
 - Not done by choice: Python 3.11 upgrade, Dockerfile, CI.

@@ -183,7 +183,8 @@ Completed (MVP):
 The MVP is complete. Keep it interview-ready:
 
 1. Keep `pytest` green; add tests with every change
-2. Keep RSS sources healthy (Calcalist/CTech feed URLs returned 404 on 2026-10-12)
+2. Keep RSS sources healthy; `scripts/seed_sources.py` is the source of truth
+   (active: Globes Technology, Techtime, Geektime; Calcalist/CTech retired 2026-10-12)
 3. Keep README in sync with behavior
 
 Do NOT introduce major new features unless explicitly requested.
